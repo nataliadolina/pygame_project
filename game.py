@@ -26,9 +26,13 @@ def load_image(name, colorkey=None):
     return image
 
 
+blocks1 = [pygame.transform.scale(load_image("grass.jpg"), (25, 25)),
+          pygame.transform.scale(load_image("block1.jpg"), (25, 25))]
+
+
 class Blocks(pygame.sprite.Sprite):
-    grass = pygame.transform.scale(load_image("grass.jpg"), (25, 25))
-    wall = pygame.transform.scale(load_image("block1.jpg"), (25, 25))
+    grass = blocks1[0]
+    wall = blocks1[1]
 
     def __init__(self, blocks, n1, n2):
         super().__init__(blocks)
@@ -59,31 +63,59 @@ class Strelka1(pygame.sprite.Sprite):
         self.image = Strelka1.st1
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(150, 75)
+        self.k = 0
 
     def get_event(self, event):
-        global k
         if self.rect.collidepoint(event.pos):
-            k += 1
-            pic = pygame.transform.scale(characters[k % len(characters)], (100, 75))
+            self.k += 1
+            pic = pygame.transform.scale(characters[self.k % len(characters)], (100, 75))
             return pic
 
 
-class Strelka2(pygame.sprite.Sprite):
-    st2 = pygame.transform.scale(load_image("error.png"), (25, 25))
-
+class Strelka2(Strelka1):
     def __init__(self, group):
         super().__init__(group)
-        self.image = Strelka2.st2
         self.image = pygame.transform.flip(self.image, 1, 0)
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(25, 75)
 
     def get_event(self, event):
-        global k
         if self.rect.collidepoint(event.pos):
-            k -= 1
-            pic = pygame.transform.scale(characters[k % len(characters)], (100, 75))
+            self.k -= 1
+            pic = pygame.transform.scale(characters[self.k % len(characters)], (100, 75))
             return pic
+
+
+class Strelka3(Strelka1):
+
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = Strelka1.st1
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(300, 75)
+        self.k1 = 0
+
+    def get_event(self, event):
+        if self.rect.collidepoint(event.pos):
+            self.k1 += 1
+            pic = pygame.transform.scale(blocks1[self.k1 % len(blocks1)], (75, 75))
+            return pic
+
+
+class Strelka4(Strelka3):
+
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = pygame.transform.flip(self.image, 1, 0)
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(175, 75)
+
+    def get_event(self, event):
+        if self.rect.collidepoint(event.pos):
+            self.k1 -= 1
+            pic = pygame.transform.scale(blocks1[self.k1 % len(blocks1)], (75, 75))
+            return pic
+
 
 
 def create_level():
@@ -91,21 +123,29 @@ def create_level():
     all_sprites = pygame.sprite.Group()
     strelka1 = pygame.sprite.Group()
     strelka2 = pygame.sprite.Group()
+    strelka3 = pygame.sprite.Group()
+    strelka4 = pygame.sprite.Group()
     player = pygame.transform.scale(characters[0], (100, 75))
+    block = pygame.transform.scale(blocks1[0], (75, 75))
     for i in range(y // 25):
         for j in range(x // 25):
             Blocks(blocks, i, j)
     Strelka1(strelka1)
     Strelka2(strelka2)
-    flag1 = False
-    flag2 = False
+    Strelka3(strelka3)
+    Strelka4(strelka4)
+    flag1, flag2, flag3, flag4 = False, False, False, False
     space_back = pygame.transform.scale(load_image('spacefon.jpg'), (150, 125))
     while True:
         blocks.draw(screen)
         screen.blit(space_back, (25, 25))
+        screen.blit(space_back, (175, 25))
         screen.blit(player, (50, 50))
+        screen.blit(block, (215, 50))
         strelka1.draw(screen)
         strelka2.draw(screen)
+        strelka3.draw(screen)
+        strelka4.draw(screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
@@ -118,12 +158,22 @@ def create_level():
                 for i in strelka2:
                     if not flag1:
                         pic = i.get_event(event)
-                        if pic is not None:
-                            flag2 = True
                 if pic is not None:
                     player = pic
                 flag1 = False
                 flag2 = False
+                for i in strelka3:
+                    if not flag4:
+                        pic = i.get_event(event)
+                        if pic is not None:
+                            flag3 = True
+                for i in strelka4:
+                    if not flag3:
+                        pic = i.get_event(event)
+                if pic is not None:
+                    block = pic
+                flag3 = False
+                flag4 = False
         pygame.display.flip()
 
 
