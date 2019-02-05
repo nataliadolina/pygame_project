@@ -27,7 +27,7 @@ def load_image(name, colorkey=None):
 
 
 blocks1 = [pygame.transform.scale(load_image("grass.jpg"), (25, 25)),
-          pygame.transform.scale(load_image("block1.jpg"), (25, 25))]
+           pygame.transform.scale(load_image("block1.jpg"), (25, 25))]
 
 
 class Blocks(pygame.sprite.Sprite):
@@ -40,8 +40,9 @@ class Blocks(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(25 * n2, 25 * n1)
 
-    def move_rect(self, x, y):
-        self.rect = self.rect.move(x, y)
+    def get_event(self, event, block_pic):
+        if self.rect.collidepoint(event.pos):
+            self.image = pygame.transform.scale(block_pic, (25, 25))
 
     def check_pic(self, k1, k2):
         if k1 == 0 or k2 == 0 or k1 == y // 25 - 1 or k2 == x // 25 - 1:
@@ -117,7 +118,6 @@ class Strelka4(Strelka3):
             return pic
 
 
-
 def create_level():
     blocks = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group()
@@ -174,6 +174,8 @@ def create_level():
                     block = pic
                 flag3 = False
                 flag4 = False
+                for i in blocks:
+                    i.get_event(event, block)
         pygame.display.flip()
 
 
