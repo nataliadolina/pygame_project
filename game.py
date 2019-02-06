@@ -42,6 +42,8 @@ class Blocks(pygame.sprite.Sprite):
         self.check_pic(n1, n2)
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(25 * n2, 25 * n1)
+        self.i = n1
+        self.j = n2
 
     def get_event(self, event, block_pic, n):
         if self.rect.collidepoint(event.pos):
@@ -147,6 +149,7 @@ class LetsGo(pygame.sprite.Sprite):
 
 
 blocks = pygame.sprite.Group()
+board = [[0] * width for _ in range(height)]
 
 
 def create_level():
@@ -159,7 +162,7 @@ def create_level():
     block = pygame.transform.scale(blocks1[0], (75, 75))
     for i in range(y // 25):
         for j in range(x // 25):
-            Blocks(blocks, i, j)
+            board[i][j] = Blocks(blocks, i, j)
     Strelka1(strelka1)
     Strelka2(strelka2)
     Strelka3(strelka3)
@@ -209,17 +212,53 @@ def create_level():
                     i.get_event(event, block, n)
                 for i in lets_go:
                     if i.get_event(event):
-                        return
+                        StartGame(player)
         pygame.display.flip()
 
 
-def StartGame():
+class Player(pygame.sprite.Sprite):
+    def __init__(self, group, surface):
+        super().__init__(group)
+        self.image = pygame.transform.scale(surface, (50, 50))
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(25, 625)
+        self.vx = 0
+        self.vy = 0
+
+    def get_event(self):
+        pass
+
+
+class Camera:
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
+
+
+camera = Camera()
+
+
+def StartGame(player_surf):
+    player1 = pygame.sprite.Group()
     screen.fill((0, 0, 0))
-    walls.draw(screen)
+    blocks.draw(screen)
+    Player(player1, player_surf)
+    camera.update(*player1)
+    camera.apply(*player1)
+    player1.draw(screen)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
+        pygame.display.flip()
 
 
 create_level()
