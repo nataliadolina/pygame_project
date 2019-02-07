@@ -267,6 +267,7 @@ class Camera:
         elif event.key == pygame.K_UP:
             self.vy = - 120 // fps
             self.vx = 0
+
     def update1(self):
         self.x += self.vx
         self.y += self.vy
@@ -280,6 +281,10 @@ class Camera:
 
 camera = Camera()
 fps = 60
+
+
+def you_lose():
+    quit()
 
 
 def StartGame(player_surf):
@@ -299,6 +304,9 @@ def StartGame(player_surf):
                 for i in player1:
                     i.get_event(event)
                     camera.apply(event, fps)
+        for i in walls:
+            if pygame.sprite.spritecollide(i, player1, False) != []:
+                you_lose()
         camera.update()
         camera.update1()
         clock.tick(fps)
