@@ -7,7 +7,6 @@ x, y = 1200, 700
 size = width, height = x, y
 screen = pygame.display.set_mode(size)
 screen.fill((0, 0, 0))
-FPS = 50
 clock = pygame.time.Clock()
 
 
@@ -47,11 +46,11 @@ class Blocks(pygame.sprite.Sprite):
 
     def adapt(self, left, top):
         self.rect.left = left + 50 * self.j
-        self.rect.top = top + 25 * self.i
+        self.rect.top = top + 50 * self.i
 
     def scale(self):
         self.image = pygame.transform.scale(self.image, (50, 50))
-        self.rect = self.rect.move(25 * self.j, 25 * self.i)
+        #self.rect = self.rect.move(25 * self.j, 25 * self.i)
 
     def get_event(self, event, block_pic, n):
         if self.rect.collidepoint(event.pos):
@@ -227,30 +226,19 @@ def create_level():
 class Player(pygame.sprite.Sprite):
     def __init__(self, group, surface):
         super().__init__(group)
-        self.image = pygame.transform.scale(surface, (100, 100))
+        self.image = pygame.transform.scale(surface, (50, 50))
         self.rect = self.image.get_rect()
-        self.rect = self.rect.move(75, 550)
+        self.rect.left = 550
+        self.rect.top = 400
         self.vx = 0
         self.vy = 0
         self.k = 0
 
     def get_event(self, event):
-        if event.key == pygame.K_SPACE:
-            self.k += 1
-            if self.k == 1:
-                self.vy = -120
-        elif event.key == pygame.K_LEFT:
-            self.vx = -120
-        elif event.key == pygame.K_RIGHT:
-            self.vx = 120
-        elif event.key == pygame.K_DOWN:
-            self.vy = 120
-        elif event.key == pygame.K_UP:
-            self.vy = -120
-
-    def update(self, fps):
-        self.rect = self.rect.move(int(self.vx / fps), 0)
-        self.rect = self.rect.move(0, int(self.vy / fps))
+        if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+            self.image = pygame.transform.flip(self.image, 1, 0)
+        elif event.key == pygame.K_DOWN or event.key == pygame.K_UP:
+            self.image = pygame.transform.flip(self.image, 0, 1)
 
 
 class Camera:
@@ -274,8 +262,8 @@ class Camera:
             self.y -= 120 // fps
 
     def update(self):
-        left = width // 2 - self.x
-        top = height // 2 - self.y
+        left = width // 2 - self.x*2
+        top = height // 2 - self.y*2
         for i in blocks:
             i.adapt(left, top)
 
@@ -290,10 +278,10 @@ def StartGame(player_surf):
     Player(player1, player_surf)
     for i in blocks:
         i.scale()
-    player1.draw(screen)
     while True:
         camera.update()
         blocks.draw(screen)
+        player1.draw(screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
@@ -301,6 +289,8 @@ def StartGame(player_surf):
                 for i in player1:
                     i.get_event(event)
                     camera.apply(event, fps)
+
+        clock.tick(fps)
         pygame.display.flip()
 
 
