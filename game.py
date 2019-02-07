@@ -232,29 +232,56 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.rect.move(75, 550)
         self.vx = 0
         self.vy = 0
+        self.k = 0
 
-    def get_event(self):
-        pass
+    def get_event(self, event):
+        if event.key == pygame.K_SPACE:
+            self.k += 1
+            if self.k == 1:
+                self.vy = -120
+        elif event.key == pygame.K_LEFT:
+            self.vx = -120
+        elif event.key == pygame.K_RIGHT:
+            self.vx = 120
+        elif event.key == pygame.K_DOWN:
+            self.vy = 120
+        elif event.key == pygame.K_UP:
+            self.vy = -120
+
+    def update(self, fps):
+        self.rect = self.rect.move(int(self.vx / fps), 0)
+        self.rect = self.rect.move(0, int(self.vy / fps))
 
 
 class Camera:
     def __init__(self):
-        self.dx = 0
-        self.dy = 0
+        self.x = 50
+        self.y = 625
+        self.k = 0
 
-    def apply(self, obj):
-        obj.rect.x += self.dx
-        obj.rect.y += self.dy
+    def apply(self, event, fps):
+        if event.key == pygame.K_SPACE:
+            self.k += 1
+            if self.k == 1:
+                self.y -= 120 // fps
+        elif event.key == pygame.K_LEFT:
+            self.x -= 120 // fps
+        elif event.key == pygame.K_RIGHT:
+            self.x += 120 // fps
+        elif event.key == pygame.K_DOWN:
+            self.y += 120 // fps
+        elif event.key == pygame.K_UP:
+            self.y -= 120 // fps
 
-    def update(self, target):
-        x, y = target.rect.center
-        left = width // 2 - x
-        top = height // 2 - y
+    def update(self):
+        left = width // 2 - self.x
+        top = height // 2 - self.y
         for i in blocks:
             i.adapt(left, top)
 
 
 camera = Camera()
+fps = 60
 
 
 def StartGame(player_surf):
@@ -265,11 +292,15 @@ def StartGame(player_surf):
         i.scale()
     player1.draw(screen)
     while True:
-        camera.update(*player1)
+        camera.update()
         blocks.draw(screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
+            elif event.type == pygame.KEYDOWN:
+                for i in player1:
+                    i.get_event(event)
+                    camera.apply(event, fps)
         pygame.display.flip()
 
 
