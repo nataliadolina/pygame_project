@@ -64,7 +64,6 @@ class Blocks(pygame.sprite.Sprite):
     def check_pic(self, k1, k2):
         if k2 == 1 and k1 == y // 25 - 2 or k2 == x // 25 - 2 and k1 == 1:
             self.image = Blocks.start_finish
-            blocks.add(self)
             st_fin.add(self)
         elif k1 == 0 or k2 == 0 or k1 == y // 25 - 1 or k2 == x // 25 - 1:
             self.image = Blocks.wall
