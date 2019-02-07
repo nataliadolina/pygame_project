@@ -279,7 +279,7 @@ def StartGame(player_surf):
     for i in blocks:
         i.scale()
     while True:
-        camera.update()
+        screen.fill((100, 60, 240))
         blocks.draw(screen)
         player1.draw(screen)
         for event in pygame.event.get():
@@ -289,7 +289,7 @@ def StartGame(player_surf):
                 for i in player1:
                     i.get_event(event)
                     camera.apply(event, fps)
-
+        camera.update()
         clock.tick(fps)
         pygame.display.flip()
 
