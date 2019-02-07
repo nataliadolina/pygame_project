@@ -45,6 +45,14 @@ class Blocks(pygame.sprite.Sprite):
         self.i = n1
         self.j = n2
 
+    def adapt(self, left, top):
+        self.rect.left = left + 50 * self.j
+        self.rect.top = top + 25 * self.i
+
+    def scale(self):
+        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.rect = self.rect.move(25 * self.j, 25 * self.i)
+
     def get_event(self, event, block_pic, n):
         if self.rect.collidepoint(event.pos):
             self.image = pygame.transform.scale(block_pic, (25, 25))
@@ -56,6 +64,7 @@ class Blocks(pygame.sprite.Sprite):
     def check_pic(self, k1, k2):
         if k2 == 1 and k1 == y // 25 - 2 or k2 == x // 25 - 2 and k1 == 1:
             self.image = Blocks.start_finish
+            blocks.add(self)
             st_fin.add(self)
         elif k1 == 0 or k2 == 0 or k1 == y // 25 - 1 or k2 == x // 25 - 1:
             self.image = Blocks.wall
@@ -219,9 +228,9 @@ def create_level():
 class Player(pygame.sprite.Sprite):
     def __init__(self, group, surface):
         super().__init__(group)
-        self.image = pygame.transform.scale(surface, (50, 50))
+        self.image = pygame.transform.scale(surface, (100, 100))
         self.rect = self.image.get_rect()
-        self.rect = self.rect.move(25, 625)
+        self.rect = self.rect.move(75, 550)
         self.vx = 0
         self.vy = 0
 
@@ -239,8 +248,11 @@ class Camera:
         obj.rect.y += self.dy
 
     def update(self, target):
-        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
-        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
+        x, y = target.rect.center
+        left = width // 2 - x
+        top = height // 2 - y
+        for i in blocks:
+            i.adapt(left, top)
 
 
 camera = Camera()
@@ -249,12 +261,13 @@ camera = Camera()
 def StartGame(player_surf):
     player1 = pygame.sprite.Group()
     screen.fill((0, 0, 0))
-    blocks.draw(screen)
     Player(player1, player_surf)
-    camera.update(*player1)
-    camera.apply(*player1)
+    for i in blocks:
+        i.scale()
     player1.draw(screen)
     while True:
+        camera.update(*player1)
+        blocks.draw(screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
