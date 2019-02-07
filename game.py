@@ -49,8 +49,8 @@ class Blocks(pygame.sprite.Sprite):
         self.rect.top = top + 50 * self.i
 
     def scale(self):
-        self.image = pygame.transform.scale(self.image, (50, 50))
-        #self.rect = self.rect.move(25 * self.j, 25 * self.i)
+        self.image = pygame.transform.scale(self.image,
+                                            (50, 50))  # self.rect = self.rect.move(25 * self.j, 25 * self.i)
 
     def get_event(self, event, block_pic, n):
         if self.rect.collidepoint(event.pos):
@@ -228,6 +228,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__(group)
         self.image = pygame.transform.scale(surface, (50, 50))
         self.rect = self.image.get_rect()
+        self.image = pygame.transform.flip(self.image, 0, 1)
         self.rect.left = 550
         self.rect.top = 400
         self.vx = 0
@@ -246,24 +247,33 @@ class Camera:
         self.x = 50
         self.y = 625
         self.k = 0
+        self.vx = 0
+        self.vy = 0
 
     def apply(self, event, fps):
         if event.key == pygame.K_SPACE:
             self.k += 1
             if self.k == 1:
-                self.y -= 120 // fps
+                self.vy = - 120 // fps
         elif event.key == pygame.K_LEFT:
-            self.x -= 120 // fps
+            self.vx = - 120 // fps
+            self.vy = 0
         elif event.key == pygame.K_RIGHT:
-            self.x += 120 // fps
+            self.vx = 120 // fps
+            self.vy = 0
         elif event.key == pygame.K_DOWN:
-            self.y += 120 // fps
+            self.vy = 120 // fps
+            self.vx = 0
         elif event.key == pygame.K_UP:
-            self.y -= 120 // fps
+            self.vy = - 120 // fps
+            self.vx = 0
+    def update1(self):
+        self.x += self.vx
+        self.y += self.vy
 
     def update(self):
-        left = width // 2 - self.x*2
-        top = height // 2 - self.y*2
+        left = width // 2 - self.x * 2
+        top = height // 2 - self.y * 2
         for i in blocks:
             i.adapt(left, top)
 
@@ -290,6 +300,7 @@ def StartGame(player_surf):
                     i.get_event(event)
                     camera.apply(event, fps)
         camera.update()
+        camera.update1()
         clock.tick(fps)
         pygame.display.flip()
 
