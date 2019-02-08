@@ -50,7 +50,7 @@ class Blocks(pygame.sprite.Sprite):
 
     def scale(self):
         self.image = pygame.transform.scale(self.image,
-                                            (50, 50))  # self.rect = self.rect.move(25 * self.j, 25 * self.i)
+                                            (50, 50))
 
     def get_event(self, event, block_pic, n):
         if self.rect.collidepoint(event.pos):
@@ -281,10 +281,81 @@ class Camera:
 
 camera = Camera()
 fps = 60
+youlose = pygame.sprite.Group()
+
+
+class YouLose(pygame.sprite.Sprite):
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = load_image('0.gif')
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(0, 75)
+
+    def update(self, surface):
+        self.image = load_image(surface, -1)
+
+
+startscreen1 = pygame.transform.scale(load_image('startscreen.png'), (1200, 700))
+
+
+class StartScreen(pygame.sprite.Sprite):
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = pygame.transform.scale(load_image('0(1).gif'), (1000, 100))
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(10, 550)
+
+    def update(self, surface):
+        self.image = pygame.transform.scale(load_image(surface, -1), (1000, 100))
+
+
+def start_screen():
+    x, y = 1200, 700
+    size = width, height = x, y
+    screen = pygame.display.set_mode(size)
+    startscreen = pygame.sprite.Group()
+    clock = pygame.time.Clock()
+    StartScreen(startscreen)
+    k = 0
+    fps = 10
+    while True:
+        screen.blit(startscreen1, (0, 0))
+        k += 1
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+        for i in startscreen:
+            i.update(str(k % 4) + '(1).gif')
+        startscreen.draw(screen)
+        clock.tick(fps)
+        pygame.display.flip()
+
+
+background = pygame.transform.scale(load_image('youlosebackground.jpg'), (600, 600))
+gameover = pygame.transform.scale(load_image('gameover.jpg'), (600, 150))
 
 
 def you_lose():
-    quit()
+    x, y = 600, 600
+    size = width, height = x, y
+    screen = pygame.display.set_mode(size)
+    screen.fill((0, 0, 0))
+    clock = pygame.time.Clock()
+    YouLose(youlose)
+    k = 0
+    fps = 10
+    while True:
+        screen.blit(background, (0, 0))
+        screen.blit(gameover, (0, 25))
+        k += 1
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                start_screen()
+        for i in youlose:
+            i.update(str(k % 50) + '.gif')
+        youlose.draw(screen)
+        clock.tick(fps)
+        pygame.display.flip()
 
 
 def StartGame(player_surf):
