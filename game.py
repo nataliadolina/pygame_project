@@ -29,7 +29,7 @@ blocks1 = [pygame.transform.scale(load_image("grass.jpg"), (25, 25)),
            pygame.transform.scale(load_image("block1.jpg"), (25, 25))]
 golden_block = pygame.transform.scale(load_image("goldenblock.png"), (25, 25))
 walls = pygame.sprite.Group()
-st_fin = pygame.sprite.Group()
+finish = pygame.sprite.Group()
 
 
 class Blocks(pygame.sprite.Sprite):
@@ -49,8 +49,7 @@ class Blocks(pygame.sprite.Sprite):
         self.rect.top = top + 50 * self.i
 
     def scale(self):
-        self.image = pygame.transform.scale(self.image,
-                                            (50, 50))
+        self.image = pygame.transform.scale(self.image, (50, 50))
 
     def get_event(self, event, block_pic):
         if self.rect.collidepoint(event.pos):
@@ -63,7 +62,8 @@ class Blocks(pygame.sprite.Sprite):
     def check_pic(self, k1, k2):
         if k2 == 1 and k1 == y // 25 - 2 or k2 == x // 25 - 2 and k1 == 1:
             self.image = Blocks.start_finish
-            st_fin.add(self)
+            if k2 == x // 25 - 2 and k1 == 1:
+                finish.add(self)
         elif k1 == 0 or k2 == 0 or k1 == y // 25 - 1 or k2 == x // 25 - 1:
             self.image = Blocks.wall
             walls.add(self)
@@ -287,7 +287,6 @@ class Camera:
 
 camera = Camera()
 fps = 60
-youlose = pygame.sprite.Group()
 
 
 class YouLose(pygame.sprite.Sprite):
@@ -299,6 +298,13 @@ class YouLose(pygame.sprite.Sprite):
 
     def update(self, surface):
         self.image = load_image(surface, -1)
+
+
+class YouWin(YouLose):
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = load_image('0.png', -1)
+        self.rect = self.rect.move(300, 300)
 
 
 startscreen1 = pygame.transform.scale(load_image('startscreen.png'), (1200, 700))
@@ -315,21 +321,34 @@ class StartScreen(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(load_image(surface, -1), (1000, 100))
 
 
+def draw():
+    font = pygame.font.Font(None, 50)
+    text = font.render("Нажмите пробел, чтобы начать игру, escape - чтобы выйти", 1, (200, 150, 100))
+    text_x = width // 2 - text.get_width() // 2
+    text_y = height // 2 - text.get_height() // 2 - 100
+    screen.blit(text, (text_x, text_y))
+
+
 def start_screen():
     x, y = 1200, 700
     size = width, height = x, y
     screen = pygame.display.set_mode(size)
     startscreen = pygame.sprite.Group()
-    clock = pygame.time.Clock()
     StartScreen(startscreen)
     k = 0
     fps = 10
     while True:
         screen.blit(startscreen1, (0, 0))
+        draw()
         k += 1
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    quit()
+                elif event.key == pygame.K_SPACE:
+                    create_level()
         for i in startscreen:
             i.update(str(k % 4) + '(1).gif')
         startscreen.draw(screen)
@@ -339,6 +358,30 @@ def start_screen():
 
 background = pygame.transform.scale(load_image('youlosebackground.jpg'), (600, 600))
 gameover = pygame.transform.scale(load_image('gameover.jpg'), (600, 150))
+win = pygame.transform.scale(load_image('youwin.jpg'), (600, 150))
+
+
+def you_win():
+    x, y = 600, 600
+    size = width, height = x, y
+    screen = pygame.display.set_mode(size)
+    screen.fill((0, 0, 0))
+    youwin = pygame.sprite.Group()
+    YouWin(youwin)
+    k = 0
+    fps = 10
+    while True:
+        screen.blit(background, (0, 0))
+        screen.blit(win, (0, 25))
+        k += 1
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                start_screen()
+        for i in youwin:
+            i.update(str(k % 2) + '.png')
+        youwin.draw(screen)
+        clock.tick(fps)
+        pygame.display.flip()
 
 
 def you_lose():
@@ -346,7 +389,7 @@ def you_lose():
     size = width, height = x, y
     screen = pygame.display.set_mode(size)
     screen.fill((0, 0, 0))
-    clock = pygame.time.Clock()
+    youlose = pygame.sprite.Group()
     YouLose(youlose)
     k = 0
     fps = 10
@@ -384,11 +427,13 @@ def StartGame(player_surf):
         for i in walls:
             if pygame.sprite.spritecollide(i, player1, False):
                 you_lose()
+        for i in finish:
+            if pygame.sprite.spritecollide(i, player1, False):
+                you_win()
         camera.update()
         camera.update1()
         clock.tick(fps)
         pygame.display.flip()
 
 
-create_level()
-StartGame()
+start_screen()
