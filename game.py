@@ -52,10 +52,10 @@ class Blocks(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image,
                                             (50, 50))
 
-    def get_event(self, event, block_pic, n):
+    def get_event(self, event, block_pic):
         if self.rect.collidepoint(event.pos):
             self.image = pygame.transform.scale(block_pic, (25, 25))
-            if n == 1:
+            if blocks1.index(block_pic) == 1:
                 walls.add(self)
             else:
                 walls.remove(self)
@@ -120,9 +120,8 @@ class Strelka3(Strelka1):
         if self.rect.collidepoint(event.pos):
             self.k1 += 1
             n = self.k1 % len(blocks1)
-            pic = pygame.transform.scale(blocks1[n], (75, 75))
-            return pic, n
-        return None, -1
+            pic = blocks1[n]
+            return pic
 
 
 class Strelka4(Strelka3):
@@ -137,9 +136,8 @@ class Strelka4(Strelka3):
         if self.rect.collidepoint(event.pos):
             self.k1 -= 1
             n = self.k1 % len(blocks1)
-            pic = pygame.transform.scale(blocks1[n], (75, 75))
-            return pic, n
-        return None, -1
+            pic = blocks1[n]
+            return pic
 
 
 class LetsGo(pygame.sprite.Sprite):
@@ -182,7 +180,8 @@ def create_level():
         screen.blit(space_back, (25, 25))
         screen.blit(space_back, (175, 25))
         screen.blit(player, (50, 50))
-        screen.blit(block, (215, 50))
+        block1 = block
+        screen.blit(pygame.transform.scale(block1, (75, 75)), (215, 50))
         strelka1.draw(screen)
         strelka2.draw(screen)
         strelka3.draw(screen)
@@ -206,17 +205,17 @@ def create_level():
                 flag2 = False
                 for i in strelka3:
                     if not flag4:
-                        pic, n = i.get_event(event)
+                        pic = i.get_event(event)
                         if pic is not None:
                             flag3 = True
                 for i in strelka4:
                     if not flag3:
-                        pic, n = i.get_event(event)
+                        pic = i.get_event(event)
                 if pic is not None:
                     block = pic
                 flag3, flag4 = False, False
                 for i in blocks:
-                    i.get_event(event, block, n)
+                    i.get_event(event, block)
                 for i in lets_go:
                     if i.get_event(event):
                         StartGame(player)
@@ -376,7 +375,7 @@ def StartGame(player_surf):
                     i.get_event(event)
                     camera.apply(event, fps)
         for i in walls:
-            if pygame.sprite.spritecollide(i, player1, False) != []:
+            if pygame.sprite.spritecollide(i, player1, False):
                 you_lose()
         camera.update()
         camera.update1()
