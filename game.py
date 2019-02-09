@@ -164,7 +164,7 @@ def create_level():
     strelka4 = pygame.sprite.Group()
     lets_go = pygame.sprite.Group()
     player = pygame.transform.scale(characters[0], (100, 75))
-    block = pygame.transform.scale(blocks1[0], (75, 75))
+    block = blocks1[0]
     for i in range(y // 25):
         for j in range(x // 25):
             board[i][j] = Blocks(blocks, i, j)
@@ -173,7 +173,7 @@ def create_level():
     Strelka3(strelka3)
     Strelka4(strelka4)
     LetsGo(lets_go)
-    flag1, flag2, flag3, flag4 = False, False, False, False
+    flag1, flag2, flag3, flag4, flag5 = False, False, False, False, False
     space_back = pygame.transform.scale(load_image('spacefon.jpg'), (150, 125))
     while True:
         blocks.draw(screen)
@@ -190,7 +190,14 @@ def create_level():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                flag5 = True
+            if flag5:
+                if event.type == pygame.MOUSEMOTION:
+                    for i in blocks:
+                        i.get_event(event, block)
             if event.type == pygame.MOUSEBUTTONUP:
+                flag5 = False
                 for i in strelka1:
                     if not flag2:
                         pic = i.get_event(event)
