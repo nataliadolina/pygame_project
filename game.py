@@ -11,13 +11,6 @@ screen.fill((0, 0, 0))
 clock = pygame.time.Clock()
 
 
-def play(song):
-    pygame.mixer.music.load(song)
-    pygame.mixer.music.play()
-    while pygame.mixer.music.get_busy():
-        pos = pygame.mixer.music.get_pos() / 1000
-
-
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     try:
@@ -435,8 +428,8 @@ def StartGame(player_surf):
                 for i in player1:
                     i.get_event(event)
                     camera.apply(event, fps)
-        for i in walls:
-            if pygame.sprite.spritecollide(i, player1, False):
+        for i in player1:
+            if pygame.sprite.spritecollide(i, walls, False):
                 you_lose()
         for i in finish:
             if pygame.sprite.spritecollide(i, player1, False):
