@@ -3,11 +3,19 @@ import sys
 import os
 
 pygame.init()
+pygame.mixer.init()
 x, y = 1200, 700
 size = width, height = x, y
 screen = pygame.display.set_mode(size)
 screen.fill((0, 0, 0))
 clock = pygame.time.Clock()
+
+
+def play(song):
+    pygame.mixer.music.load(song)
+    pygame.mixer.music.play()
+    while pygame.mixer.music.get_busy():
+        pos = pygame.mixer.music.get_pos() / 1000
 
 
 def load_image(name, colorkey=None):
@@ -303,8 +311,8 @@ class YouLose(pygame.sprite.Sprite):
 class YouWin(YouLose):
     def __init__(self, group):
         super().__init__(group)
-        self.image = load_image('0.png', -1)
-        self.rect = self.rect.move(300, 300)
+        self.image = load_image('0(2).gif', -1)
+        self.rect = self.rect.move(50, 100)
 
 
 startscreen1 = pygame.transform.scale(load_image('startscreen.png'), (1200, 700))
@@ -378,7 +386,10 @@ def you_win():
             if event.type == pygame.QUIT:
                 start_screen()
         for i in youwin:
-            i.update(str(k % 2) + '.png')
+            if k % 30 in [0, 1, 2, 3]:
+                i.update(str(k % 30) + '(2).gif')
+            else:
+                i.update(str(k % 30) + '(1).gif')
         youwin.draw(screen)
         clock.tick(fps)
         pygame.display.flip()
