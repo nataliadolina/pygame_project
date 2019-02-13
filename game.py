@@ -373,9 +373,11 @@ win = pygame.transform.scale(load_image('youwin.jpg'), (600, 150))
 
 def you_win():
     for i in walls:
-        walls.remove(i)
+        i.kill()
     for i in blocks:
         blocks.remove(i)
+    for i in finish:
+        finish.remove(i)
     x, y = 600, 600
     size = width, height = x, y
     screen = pygame.display.set_mode(size)
@@ -406,6 +408,8 @@ def you_lose():
         i.kill()
     for i in blocks:
         blocks.remove(i)
+    for i in finish:
+        finish.remove(i)
     x, y = 600, 600
     size = width, height = x, y
     screen = pygame.display.set_mode(size)
@@ -455,8 +459,9 @@ def StartGame(player_surf):
             if collide:
                 you_lose()
                 return
-        for i in finish:
-            if pygame.sprite.spritecollide(i, player1, False):
+        for i in player1:
+            collide = pygame.sprite.spritecollide(i, finish, False)
+            if collide:
                 you_win()
                 return
         clock.tick(fps)
