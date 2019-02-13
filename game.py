@@ -371,13 +371,17 @@ gameover = pygame.transform.scale(load_image('gameover.jpg'), (600, 150))
 win = pygame.transform.scale(load_image('youwin.jpg'), (600, 150))
 
 
-def you_win():
+def update():
     for i in walls:
         i.kill()
     for i in blocks:
         blocks.remove(i)
     for i in finish:
         finish.remove(i)
+
+
+def you_win():
+    update()
     x, y = 600, 600
     size = width, height = x, y
     screen = pygame.display.set_mode(size)
@@ -404,12 +408,7 @@ def you_win():
 
 
 def you_lose():
-    for i in walls:
-        i.kill()
-    for i in blocks:
-        blocks.remove(i)
-    for i in finish:
-        finish.remove(i)
+    update()
     x, y = 600, 600
     size = width, height = x, y
     screen = pygame.display.set_mode(size)
