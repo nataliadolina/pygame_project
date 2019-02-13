@@ -227,6 +227,7 @@ def create_level():
                 for i in lets_go:
                     if i.get_event(event):
                         StartGame(player)
+                        break
         pygame.display.flip()
 
 
@@ -278,6 +279,13 @@ class Camera:
     def update1(self):
         self.x += self.vx
         self.y += self.vy
+
+    def update2(self):
+        self.x = 50
+        self.y = 625
+        self.k = 0
+        self.vx = 0
+        self.vy = 0
 
     def update(self):
         left = width // 2 - self.x * 2
@@ -350,6 +358,7 @@ def start_screen():
                     quit()
                 elif event.key == pygame.K_SPACE:
                     create_level()
+                    return
         for i in startscreen:
             i.update(str(k % 4) + '(1).gif')
         startscreen.draw(screen)
@@ -363,6 +372,10 @@ win = pygame.transform.scale(load_image('youwin.jpg'), (600, 150))
 
 
 def you_win():
+    for i in walls:
+        walls.remove(i)
+    for i in blocks:
+        blocks.remove(i)
     x, y = 600, 600
     size = width, height = x, y
     screen = pygame.display.set_mode(size)
@@ -389,6 +402,10 @@ def you_win():
 
 
 def you_lose():
+    for i in walls:
+        i.kill()
+    for i in blocks:
+        blocks.remove(i)
     x, y = 600, 600
     size = width, height = x, y
     screen = pygame.display.set_mode(size)
@@ -404,6 +421,7 @@ def you_lose():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 start_screen()
+                return
         for i in youlose:
             i.update(str(k % 50) + '.gif')
         youlose.draw(screen)
@@ -412,6 +430,7 @@ def you_lose():
 
 
 def StartGame(player_surf):
+    camera.update2()
     player1 = pygame.sprite.Group()
     screen.fill((0, 0, 0))
     Player(player1, player_surf)
@@ -419,8 +438,11 @@ def StartGame(player_surf):
         i.scale()
     while True:
         screen.fill((100, 60, 240))
+        camera.update()
+        camera.update1()
         blocks.draw(screen)
         player1.draw(screen)
+        pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
@@ -429,13 +451,14 @@ def StartGame(player_surf):
                     i.get_event(event)
                     camera.apply(event, fps)
         for i in player1:
-            if pygame.sprite.spritecollide(i, walls, False):
+            collide = pygame.sprite.spritecollide(i, walls, False)
+            if collide:
                 you_lose()
+                return
         for i in finish:
             if pygame.sprite.spritecollide(i, player1, False):
                 you_win()
-        camera.update()
-        camera.update1()
+                return
         clock.tick(fps)
         pygame.display.flip()
 
